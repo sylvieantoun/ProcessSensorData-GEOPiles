@@ -1,0 +1,240 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>PreProcess_ExcelFiles</title><meta name="generator" content="MATLAB 9.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-04-16"><meta name="DC.source" content="PreProcess_ExcelFiles.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">Author/Original Developer: Dr.Sylvie Antoun   Date: 2022/04/14  email: <a href="mailto:sylvieantoun@gmail.com">sylvieantoun@gmail.com</a></a></li><li><a href="#4">Importing Sensor Data</a></li><li><a href="#5">Ground loop snsors (28 total)</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [outputArgs] = PreProcess_ExcelFiles(INPUTARGS)
+</pre><pre class="codeinput"><span class="comment">% PREPROCESS_EXCELFILES function lets you interactively handle messy and missing data values such as NaN or &lt;missing&gt;.</span>
+<span class="comment">% The function main objectives is to:</span>
+<span class="comment">% $ Retime and Synchronize Time Dependent Sensor Variables.</span>
+<span class="comment">% $ Find, fill, or remove missing data.</span>
+<span class="comment">%</span>
+<span class="comment">% [OUTPUTARGS] = PREPROCESS_EXCELFILES(INPUTARGS)</span>
+<span class="comment">% Make sure you have dowloaded the raw excel files for all sensors below from EbyRush-Argentum interface.</span>
+<span class="comment">% To download the data, please refer to the "How To Document" in EbyRush-Project Shared Drive</span>
+<span class="comment">% The sensor FileNames will consist of the below:</span>
+<span class="comment">% T1, T2, T3, T4, T5, T6, T7, TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, F1, F2, F3, F4...</span>
+<span class="comment">% EER (cooling) or COP (heating), EWT, LWT, HEHR, P1, P2, TotalCapacity, TotalPower, ZoneTempStat</span>
+<span class="comment">% Make sure you change your Folder to the directory where your .xls* files exit</span>
+
+<span class="comment">% Please refer to the "How To Document" for more guidance</span>
+</pre><h2 id="3">Author/Original Developer: Dr.Sylvie Antoun   Date: 2022/04/14  email: <a href="mailto:sylvieantoun@gmail.com">sylvieantoun@gmail.com</a></h2><pre class="codeinput">tic
+clc
+clear <span class="string">all</span>
+
+formatIn = <span class="string">'yyyy-mm-dd HH:MM'</span>;
+prompt = input(<span class="string">'Enter Test Start Date and Time (format:yyyy-mm-dd HH:MM):'</span>,<span class="string">'s'</span>)
+timestartcar=char(prompt);
+tstart= datetime(datevec(timestartcar(:,1:16),formatIn));
+prompt = input(<span class="string">'Enter Test End Date and Time (format:yyyy-mm-dd HH:MM):'</span>,<span class="string">'s'</span>)
+timeendcar=char(prompt);
+tend= datetime(datevec(timeendcar(:,1:16),formatIn));
+</pre><pre class="codeoutput error">Error using input
+Cannot call INPUT from EVALC.
+
+Error in PreProcess_ExcelFiles (line 23)
+prompt = input('Enter Test Start Date and Time (format:yyyy-mm-dd HH:MM):','s')
+</pre><h2 id="4">Importing Sensor Data</h2><pre class="codeinput">prompt = input(<span class="string">'Please select all the sensors files, make sure you are in the right directory and your files are in .xlsx or .xls format'</span>)
+[files,path]=uigetfile(<span class="string">'*.xls*'</span>,<span class="string">'multiselect'</span>,<span class="string">'on'</span>);
+<span class="comment">% Get a list of all files in the folder with the desired file name pattern.</span>
+filePattern = fullfile(path, <span class="string">'*.xls*'</span>); <span class="comment">% Change to whatever pattern you need.</span>
+theFiles = struct2table(dir(filePattern));
+ExcelFileNames=theFiles.name;
+[folder, baseFileName, extension] = fileparts(ExcelFileNames);
+
+numbGS=length(ExcelFileNames); <span class="comment">% Total number of GroundLoop Sensors</span>
+
+<span class="comment">% only process the data from t_start to t_finish</span>
+<span class="keyword">for</span> k = 1:numbGS
+    opts{k}=detectImportOptions(ExcelFileNames{k});
+    Data{k}=readtable(ExcelFileNames{k});
+    VarName{k}=opts{k}.VariableNames;<span class="comment">%variables Name Character</span>
+    timechar=char(Data{k}.time);<span class="comment">%transfer the timedata into character</span>
+    time{k}=datetime(datevec(timechar(:,1:16), formatIn));<span class="comment">% only read timechar to seconds 1:16 char, TableArray</span>
+    indx=find(isbetween(time{k},tstart,tend)==1); <span class="comment">%collect only the data between test time start and time end</span>
+    ttest{k}=time{k}(indx);
+    TT{k}=timetable(ttest{k},str2double(Data{k}{indx,2}),<span class="string">'VariableNames'</span>,VarName{k}(1,2));
+ <span class="keyword">if</span> k== 1
+        joinedtimetable = TT{k};  <span class="comment">%1st time, create output</span>
+    <span class="keyword">else</span>
+        joinedtimetable = synchronize(joinedtimetable, TT{k}); <span class="comment">%subsequent times, synchronize. Choose whichever method is prefered</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+ TT_all_unclean= synchronize(TT{:});
+</pre><h2 id="5">Ground loop snsors (28 total)</h2><pre class="codeinput">    TT_all_sort_irreg=sortrows(TT_all_unclean);
+
+    <span class="keyword">if</span> isregular(TT_all_sort_irreg)==0
+       uniqueRowsTT=unique(TT_all_sort_irreg);
+       dupTimes = sort(uniqueRowsTT.Time);
+       tf = (diff(dupTimes) == 0);
+       dupTimes = dupTimes(tf);
+       dupTimes = unique(dupTimes);
+       uniqueTimes = unique(uniqueRowsTT.Time);
+       firstUniqueRowsTT = retime(uniqueRowsTT,uniqueTimes,<span class="string">'firstvalue'</span>);
+       meanTT = retime(uniqueRowsTT,uniqueTimes,<span class="string">'mean'</span>);
+       regularTT = retime(meanTT,<span class="string">'regular'</span>,<span class="string">'linear'</span>,<span class="string">'TimeStep'</span>,minutes(1));
+       TTclean= regularTT;
+     <span class="keyword">else</span>
+          TTclean= TT_all_unclean;
+    <span class="keyword">end</span>
+TTclean = fillmissing(TTclean,<span class="string">'linear'</span>);
+<span class="comment">%change timetable name based on test</span>
+formatSpec = <span class="string">"%s_Test_CleanData.xlsx"</span>;
+testdate=timechar(1,1:10);
+str = sprintf(formatSpec,testdate)
+writetimetable(TTclean,str);
+toc
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2021b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [outputArgs] = PreProcess_ExcelFiles(INPUTARGS)
+% PREPROCESS_EXCELFILES function lets you interactively handle messy and missing data values such as NaN or <missing>. 
+% The function main objectives is to: 
+% $ Retime and Synchronize Time Dependent Sensor Variables.
+% $ Find, fill, or remove missing data. 
+% 
+% [OUTPUTARGS] = PREPROCESS_EXCELFILES(INPUTARGS) 
+% Make sure you have dowloaded the raw excel files for all sensors below from EbyRush-Argentum interface. 
+% To download the data, please refer to the "How To Document" in EbyRush-Project Shared Drive
+% The sensor FileNames will consist of the below:
+% T1, T2, T3, T4, T5, T6, T7, TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, F1, F2, F3, F4...
+% EER (cooling) or COP (heating), EWT, LWT, HEHR, P1, P2, TotalCapacity, TotalPower, ZoneTempStat
+% Make sure you change your Folder to the directory where your .xls* files exit
+
+% Please refer to the "How To Document" for more guidance 
+%% Author/Original Developer: Dr.Sylvie Antoun   Date: 2022/04/14  email: sylvieantoun@gmail.com
+
+tic
+clc
+clear all
+
+formatIn = 'yyyy-mm-dd HH:MM';
+prompt = input('Enter Test Start Date and Time (format:yyyy-mm-dd HH:MM):','s')
+timestartcar=char(prompt);
+tstart= datetime(datevec(timestartcar(:,1:16),formatIn));
+prompt = input('Enter Test End Date and Time (format:yyyy-mm-dd HH:MM):','s')
+timeendcar=char(prompt);
+tend= datetime(datevec(timeendcar(:,1:16),formatIn));
+
+%% Importing Sensor Data
+prompt = input('Please select all the sensors files, make sure you are in the right directory and your files are in .xlsx or .xls format')
+[files,path]=uigetfile('*.xls*','multiselect','on');
+% Get a list of all files in the folder with the desired file name pattern.
+filePattern = fullfile(path, '*.xls*'); % Change to whatever pattern you need.
+theFiles = struct2table(dir(filePattern));
+ExcelFileNames=theFiles.name;
+[folder, baseFileName, extension] = fileparts(ExcelFileNames);
+
+numbGS=length(ExcelFileNames); % Total number of GroundLoop Sensors
+
+% only process the data from t_start to t_finish 
+for k = 1:numbGS
+    opts{k}=detectImportOptions(ExcelFileNames{k});
+    Data{k}=readtable(ExcelFileNames{k});
+    VarName{k}=opts{k}.VariableNames;%variables Name Character
+    timechar=char(Data{k}.time);%transfer the timedata into character 
+    time{k}=datetime(datevec(timechar(:,1:16), formatIn));% only read timechar to seconds 1:16 char, TableArray
+    indx=find(isbetween(time{k},tstart,tend)==1); %collect only the data between test time start and time end
+    ttest{k}=time{k}(indx);
+    TT{k}=timetable(ttest{k},str2double(Data{k}{indx,2}),'VariableNames',VarName{k}(1,2));
+ if k== 1
+        joinedtimetable = TT{k};  %1st time, create output
+    else  
+        joinedtimetable = synchronize(joinedtimetable, TT{k}); %subsequent times, synchronize. Choose whichever method is prefered
+    end
+end
+ TT_all_unclean= synchronize(TT{:});
+
+%% Ground loop snsors (28 total)
+    TT_all_sort_irreg=sortrows(TT_all_unclean);
+
+    if isregular(TT_all_sort_irreg)==0
+       uniqueRowsTT=unique(TT_all_sort_irreg);
+       dupTimes = sort(uniqueRowsTT.Time);
+       tf = (diff(dupTimes) == 0);
+       dupTimes = dupTimes(tf);
+       dupTimes = unique(dupTimes); 
+       uniqueTimes = unique(uniqueRowsTT.Time);
+       firstUniqueRowsTT = retime(uniqueRowsTT,uniqueTimes,'firstvalue');
+       meanTT = retime(uniqueRowsTT,uniqueTimes,'mean');
+       regularTT = retime(meanTT,'regular','linear','TimeStep',minutes(1));
+       TTclean= regularTT;
+     else 
+          TTclean= TT_all_unclean;
+    end
+TTclean = fillmissing(TTclean,'linear');    
+%change timetable name based on test
+formatSpec = "%s_Test_CleanData.xlsx";
+testdate=timechar(1,1:10);
+str = sprintf(formatSpec,testdate)
+writetimetable(TTclean,str);
+toc
+
+end
+
+##### SOURCE END #####
+--></body></html>
