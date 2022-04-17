@@ -1,7 +1,9 @@
 function [outputArgs] = PostProcess_CleanData(inputArgs)
 
 %% PostProcess_CleanData function Summary
-% Author: Dr. Sylvie Antoun | Date: 2022/04/14 | Email: sylvieantoun@gmail.com |
+% Author: Dr. Sylvie Antoun 
+% Date: 2022/04/14 
+% Email: sylvieantoun@gmail.com 
 
 % [OUTPUTARGS] = POSTPROCESS_CLEANDATA(INPUTARGS) 
 % The function reads all the sensors Data and process it for
