@@ -39,13 +39,13 @@ Make sure you change your Folder to the directory where your 'Date_Test_CleanDat
 * F2 and F3  are the flow rates of water going flowing into the geo-pile group1 and group2 loops respectively (gpm)
 * Cpwg is the specific heat of water with 30 glycol (485 Btu/Ib.F =3915 J/kg-K), 
 * Cpw is the specific heat of water (500 Btu/Ib.F =4187.00 J/kg-K), 
-LWT is the leaving water temperature of the heat pump (F) 
-EWT is the entering water temperature of the heat pump (F)
-T7 is the temperature of the water entering the geo-piles, 
-T6 is the temperature of the water leaving the entire geo-pile system, 
-TotalHPCapacity and HEHR are in Btu/hr and Power in Watts ->  1 W = 3.412142 BTU/h
-TotPowerHP is the total HP power consumption reading during operation (W)
-P1 is the power consumed by pump 1 in figure 7.1 (W). 
-P2 is the power consumed by pump 2 in figure 7.1 (W).
+* LWT is the leaving water temperature of the heat pump (F) 
+* EWT is the entering water temperature of the heat pump (F)
+* T7 is the temperature of the water entering the geo-piles, 
+* T6 is the temperature of the water leaving the entire geo-pile system, 
+* TotalHPCapacity and HEHR are in Btu/hr and Power in Watts ->  1 W = 3.412142 BTU/h
+* TotPowerHP is the total HP power consumption reading during operation (W)
+* P1 is the power consumed by pump 1 in figure 7.1 (W). 
+* P2 is the power consumed by pump 2 in figure 7.1 (W).
 
 
