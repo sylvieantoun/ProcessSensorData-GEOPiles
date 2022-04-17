@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>PostProcess_CleanData</title><meta name="generator" content="MATLAB 9.10"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-04-14"><meta name="DC.source" content="PostProcess_CleanData.m"><style type="text/css">
+      --><title>PostProcess_CleanData</title><meta name="generator" content="MATLAB 9.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-04-16"><meta name="DC.source" content="PostProcess_CleanData.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,8 +67,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">PostProcess_CleanData function Summary</a></li><li><a href="#3">Extra Notes of Unit Conversion factors</a></li><li><a href="#4">Importing Clean Data</a></li><li><a href="#5">Curve Fitting COP Heat Pump Specs using Versatec-VS Model 072 Full Load at 18 GPM</a></li><li><a href="#6">COP Calculation</a></li><li><a href="#7">Mean Values</a></li><li><a href="#8">Plotting results</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [outputArgs] = PostProcess_CleanData(inputArgs)
-</pre><h2 id="2">PostProcess_CleanData function Summary</h2><p>Author: Dr. Sylvie Antoun | Date: 2022/04/14 | Email: <a href="mailto:sylvieantoun@gmail.com">sylvieantoun@gmail.com</a> |</p><pre class="codeinput"><span class="comment">% [OUTPUTARGS] = POSTPROCESS_CLEANDATA(INPUTARGS)</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">PostProcess_CleanData function summary</a></li><li><a href="#3">Extra Notes of Unit Conversion factors</a></li><li><a href="#4">Importing Clean Data</a></li><li><a href="#5">Curve Fitting COP Heat Pump Specs using Versatec-VS Model 072 Full Load at 18 GPM</a></li><li><a href="#6">COP Calculation</a></li><li><a href="#7">Mean Values</a></li><li><a href="#8">Plotting results</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [outputArgs] = PostProcess_CleanData(inputArgs)
+</pre><h2 id="2">PostProcess_CleanData function summary</h2><p>Author: Sylvie Antoun Date: 2022/04/14 Email: <a href="mailto:sylvieantoun@gmail.com">sylvieantoun@gmail.com</a></p><pre class="codeinput"><span class="comment">% [OUTPUTARGS] = POSTPROCESS_CLEANDATA(INPUTARGS)</span>
 <span class="comment">% The function reads all the sensors Data and process it for</span>
 <span class="comment">% evaluating and plotting Heat Exchange, Capacity, Power consumption</span>
 <span class="comment">% and COP as a function of time for each EbyRush-System component:</span>
@@ -113,7 +113,7 @@ T = rmmissing(T,<span class="string">'DataVariables'</span>,@isnumeric);
 </pre><pre class="codeoutput error">Error using input
 Cannot call INPUT from EVALC.
 
-Error in PostProcess_CleanData (line 49)
+Error in PostProcess_CleanData (line 51)
 prompt = input('Make sure your current Folder is where you saved the Test Clean Data File. If true, Hit "Enter" to select the Clean file in .xlsx format')
 </pre><h2 id="5">Curve Fitting COP Heat Pump Specs using Versatec-VS Model 072 Full Load at 18 GPM</h2><pre class="codeinput"><span class="comment">%Values correspond to Flow = 18gpm</span>
 CF=readtable(<span class="string">'Heat Pump Curve Data.xlsx'</span>,<span class="string">'Sheet'</span>,<span class="string">'Model72 - Flow 18'</span>,<span class="string">'VariableNamingRule'</span>,<span class="string">'preserve'</span>); <span class="comment">%reading data from excel</span>
@@ -441,12 +441,14 @@ set(axes9,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'
 legend(<span class="string">'Piles Group2 Flow F2'</span>,<span class="string">'Piles Group1 Flow F3 '</span>,<span class="string">'Total Piles Flow (F2+F3)'</span>, <span class="string">'FontSize'</span>,12,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
 title(<span class="string">'Flowrates [gpm]'</span>, <span class="string">'FontSize'</span>, 14');
 </pre><pre class="codeinput"><span class="keyword">end</span>
-</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2021a</a><br></p></div><!--
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2021b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 function [outputArgs] = PostProcess_CleanData(inputArgs)
 
-%% PostProcess_CleanData function Summary
-% Author: Dr. Sylvie Antoun | Date: 2022/04/14 | Email: sylvieantoun@gmail.com |
+%% PostProcess_CleanData function summary
+% Author: Sylvie Antoun
+% Date: 2022/04/14
+% Email: sylvieantoun@gmail.com
 
 % [OUTPUTARGS] = POSTPROCESS_CLEANDATA(INPUTARGS) 
 % The function reads all the sensors Data and process it for
