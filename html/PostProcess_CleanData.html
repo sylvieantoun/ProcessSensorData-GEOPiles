@@ -1,0 +1,854 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>PostProcess_CleanData</title><meta name="generator" content="MATLAB 9.10"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-04-14"><meta name="DC.source" content="PostProcess_CleanData.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">PostProcess_CleanData function Summary</a></li><li><a href="#3">Extra Notes of Unit Conversion factors</a></li><li><a href="#4">Importing Clean Data</a></li><li><a href="#5">Curve Fitting COP Heat Pump Specs using Versatec-VS Model 072 Full Load at 18 GPM</a></li><li><a href="#6">COP Calculation</a></li><li><a href="#7">Mean Values</a></li><li><a href="#8">Plotting results</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [outputArgs] = PostProcess_CleanData(inputArgs)
+</pre><h2 id="2">PostProcess_CleanData function Summary</h2><p>Author: Dr. Sylvie Antoun | Date: 2022/04/14 | Email: <a href="mailto:sylvieantoun@gmail.com">sylvieantoun@gmail.com</a> |</p><pre class="codeinput"><span class="comment">% [OUTPUTARGS] = POSTPROCESS_CLEANDATA(INPUTARGS)</span>
+<span class="comment">% The function reads all the sensors Data and process it for</span>
+<span class="comment">% evaluating and plotting Heat Exchange, Capacity, Power consumption</span>
+<span class="comment">% and COP as a function of time for each EbyRush-System component:</span>
+<span class="comment">% [Existing Conventional, Borehole Loop, Geo-Piles,Heat Pump]</span>
+
+<span class="comment">% This function is setup to assess both the COP of the Heat Pump (HP) and a Theoretical GeoPiles COP calculated by assuming the Heat Exchanger is absent.</span>
+<span class="comment">% Theoretical COP is evaluated based on the Heat Pump Versatec VS Model 072 - Full Load Manual with T6 (water temperature coming out of the GeoPiles)</span>
+<span class="comment">% used as the heat pump fluid temperature (EWT new) going directly into the Heat Pump.</span>
+<span class="comment">% Note that the interpolated data for the COP were based on a Heat Pump Fluid Flow Rate of 18 gpm</span>
+
+<span class="comment">% This function is also setup to calculate the mean value of outputs over the test time.</span>
+
+<span class="comment">% Make sure you change your Folder to the directory where your 'Date_Test_CleanData.xlsx file is saved</span>
+<span class="comment">%</span>
+<span class="comment">% This Code is well-commented to guide through the steps if you need to make any changes</span>
+<span class="comment">% Please refer to the "How To Document" and "Technical Report" for more guidance</span>
+</pre><h2 id="3">Extra Notes of Unit Conversion factors</h2><div><ul><li>1 W = 3.412142 BTU/h, 1W= 0.000284345 ton, 1 ton = 12,000 BTU/h, and 1 ton = 3.51685 kW</li><li>F to degC =(F-32)/1.8,</li><li>GPM to lps for flowrate lps=gpm*3.7854/60   1 gpm = 6.309e-5 m3/s</li><li>F1 is the flow rate of glycol flowing into the heat pump (gal/min), the same value as the heat pump WaterFlow variable.</li><li>F2 and F3  are the flow rates of water going flowing into the geo-pile group1 and group2 loops respectively (gpm)</li><li>Cpwg is the specific heat of water with 30% glycol (485 Btu/Ib.F =3915 J/kg-K),</li><li>Cpw is the specific heat of water (500 Btu/Ib.F =4187.00 J/kg-K),</li><li>LWT is the leaving water temperature of the heat pump (F)</li><li>EWT is the entering water temperature of the heat pump (F)</li><li>T7 is the temperature of the water entering the geo-piles,</li><li>T6 is the temperature of the water leaving the entire geo-pile system,</li><li>TotalHPcapacity and HEHR are in Btu/hr and Power in Watts -&gt;  1 W = 3.412142 BTU/h</li><li>TotPowerHP is the total HP power consumption reading during operation (W)</li><li>P1 is the power consumed by pump 1 in figure 7.1 (W).</li><li>P2 is the power consumed by pump 2 in figure 7.1 (W).</li></ul></div><h2 id="4">Importing Clean Data</h2><pre class="codeinput">clear
+clc
+<span class="comment">%Antifreeze Correction Factor from Heat Pump manual</span>
+AntifreezeCorrcooling=0.95;  AntifreezeCorrHeating =0.854;
+formatIn = <span class="string">'yyyy-mm-dd HH:MM'</span>;<span class="comment">% time vector format</span>
+
+prompt = input(<span class="string">'Make sure your current Folder is where you saved the Test Clean Data File. If true, Hit "Enter" to select the Clean file in .xlsx format'</span>)
+[files,path]=uigetfile(<span class="string">'*.xls*'</span>);
+filePattern = fullfile(path, files); <span class="comment">% Change to whatever pattern you need.</span>
+theFiles = struct2table(dir(filePattern));
+ExcelFileNames=theFiles.name;
+opts=detectImportOptions(ExcelFileNames);
+<span class="comment">%Read the data and variable names from file and save them in a Matlab time table</span>
+T=readtimetable(ExcelFileNames,opts,<span class="string">'ReadVariableNames'</span>,true);
+VarName=opts.VariableNames; <span class="comment">%variables Name Character</span>
+
+<span class="comment">%%interpolate or remove rows with missing NaN values</span>
+T = fillmissing(T,<span class="string">'linear'</span>);
+T = rmmissing(T,<span class="string">'DataVariables'</span>,@isnumeric);
+
+<span class="keyword">if</span> T.EWT &lt; T.LWT <span class="comment">%Cooling Season</span>
+    AntifreezeCorr=AntifreezeCorrcooling;
+<span class="keyword">else</span>
+     AntifreezeCorr=AntifreezeCorrHeating;
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Error using input
+Cannot call INPUT from EVALC.
+
+Error in PostProcess_CleanData (line 49)
+prompt = input('Make sure your current Folder is where you saved the Test Clean Data File. If true, Hit "Enter" to select the Clean file in .xlsx format')
+</pre><h2 id="5">Curve Fitting COP Heat Pump Specs using Versatec-VS Model 072 Full Load at 18 GPM</h2><pre class="codeinput"><span class="comment">%Values correspond to Flow = 18gpm</span>
+CF=readtable(<span class="string">'Heat Pump Curve Data.xlsx'</span>,<span class="string">'Sheet'</span>,<span class="string">'Model72 - Flow 18'</span>,<span class="string">'VariableNamingRule'</span>,<span class="string">'preserve'</span>); <span class="comment">%reading data from excel</span>
+<span class="comment">%F to degC =(F-32)/1.8,</span>
+<span class="keyword">for</span> i=1:size(CF.EWT)
+  EWT_HPManual(i)=(CF.EWT(i)-32)/1.8;<span class="comment">%convert to degC</span>
+  COP_Cooling_HPManual(i)=CF.EER(i)/3.412;
+  COP_Heating_HPManual(i)=CF.COP(i);
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> T.T6(10)&lt;T.T7(10)
+    x= EWT_HPManual;
+    y= COP_Cooling_HPManual;
+<span class="keyword">else</span>
+    x= EWT_HPManual;
+    y= COP_Heating_HPManual;
+<span class="keyword">end</span>
+[xData, yData] = prepareCurveData( x, y );
+<span class="comment">% Set up fittype and options.</span>
+ft = fittype( <span class="string">'poly3'</span> );
+<span class="comment">% Fit model to data.</span>
+[fitresult, gof] = fit( xData, yData, ft );
+<span class="comment">% Plot fit with data.</span>
+figure0=figure;
+axes0 = axes(<span class="string">'Parent'</span>,figure0);
+axes0.FontSize=12;
+hold(axes0,<span class="string">'on'</span>);
+box(axes0,<span class="string">'on'</span>);
+plot( xData, yData,<span class="string">'ob'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>,<span class="string">'MarkerSize'</span>,4);
+hold <span class="string">on</span>
+plot(fitresult,<span class="string">'predobs'</span>)
+xlim([-5 50])
+legend( axes0, <span class="string">'Heat Pump Manual'</span>, <span class="string">'CurveFit of COP(EWT)'</span>, <span class="string">'Prediction Bounds'</span>,<span class="string">'Location'</span>, <span class="string">'Best'</span> );
+set(axes0,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+<span class="comment">% Label axes</span>
+xlabel( <span class="string">'EWT (degC)'</span>,<span class="string">'FontSize'</span>, 12 );
+ylabel( <span class="string">'COP_{Cooling}'</span>, <span class="string">'FontSize'</span>, 12 );
+title(<span class="string">'Versatec VS Model 072 - Full Load'</span>)
+subtitle(<span class="string">'COP Cooling - EAT 70 F (High Speed 2000 CFM) '</span>, <span class="string">'FontSize'</span>, 12')
+
+
+<span class="comment">%%Fluid Properties as a function of Fluid Temperature</span>
+Cp_w=1000*(28.07-0.2817*(T.T6+T.T7)/2+1.25*10^(-3)*((T.T6+T.T7)/2).^2 <span class="keyword">...</span>
+    -2.48*10^(-6)*((T.T6+T.T7)/2).^3+1.857*10^(-9)*((T.T6+T.T7)/2).^4);<span class="comment">%(T in Kelvin, unit is J/kg.K)</span>
+Cp_w=4187;
+Cp_wg=3915;
+rho_w=1001.1-0.0867*(T.T6+T.T7)/2-0.0035*((T.T6+T.T7)/2).^2;
+
+Twg=[-13	-7	-3	0	20	40	60	80	100];
+rho_wg=[1035	1034	1032	1031	1022	1010	997	983	969];
+[xData, yData] = prepareCurveData( Twg, rho_wg );
+<span class="comment">% Set up fittype and options.</span>
+ft1 = fittype( <span class="string">'poly3'</span> );
+<span class="comment">% Fit model to data.</span>
+[rho_wg, gof1] = fit( xData, yData, ft1 );
+
+a=-7.75E-09;
+b=1.03E-06;
+c=-5.71E-05;
+d=1.79E-03;
+
+Do=0.15;
+mu_w2 = a*((T.T6+T.T7)/2).^3 + b*((T.T6+T.T7)/2).^2 + c*((T.T6+T.T7)/2) + d;<span class="comment">%[Pa s], [N s/m2]Do=0.1143;%m</span>
+Ac=(pi*Do^2)/4;<span class="comment">%m2</span>
+vi= ((T.F2+T.F3)*6.309e-5/8)/Ac; <span class="comment">%velocity per pile m/s</span>
+Re=rho_w.*Do.*vi./mu_w2;
+
+<span class="comment">%%Post-Calculations and Saving data in  'Out' structure</span>
+Out.Time=T.Time;
+Out.HEHR=T.HEHR/3.412142/1000;<span class="comment">%Btu/hr to kW</span>
+Out.HE_HP=abs((T.T2-T.T1).*T.F1.*6.309e-5*Cp_wg.*rho_wg((T.T1+T.T2)/2))/1000;<span class="comment">% deltaT[K]*flow(gpm)*6.309e-5[m3/s/gpm]*cp[J/kg-K]*rho[kg/m3]/1000 (kW)</span>
+<span class="comment">%At Heat Exchanger Secondary Fluid in Pipe going into ground</span>
+Out.HE_geopile_sf=abs((T.T6-T.T7).*(T.F3+T.F2).*6.309e-5.*Cp_w.*rho_w/1000); <span class="comment">% deltaT[K]*flow(gpm)*6.309e-5[m3/s/gpm]*cp[J/kg-K]*rho[kg/m3]/1000 (kW)</span>
+Out.HE_conv=abs((T.T4-T.T5).*T.F4*6.309e-5*Cp_wg.*rho_wg((T.T4+T.T5)/2))/1000;
+
+<span class="comment">% At Heat Exchanger Primary fluid in Pipe going to Heat Pump</span>
+<span class="comment">%Out.HE_geopile_pf=Out.HE_HP-Out.HE_conv;</span>
+Out.deltaT_geopiles=abs(T.T6-T.T7);
+<span class="comment">%Out.deltaT_HeatExchanger=abs(Out.HE_geopile_sf*1000/(Cp_wg*rho_w.*(T.F1-T.F4)));</span>
+
+<span class="comment">% Capacities in Tons</span>
+Out.TotalCapacity_HP=T.TotalCapacity/12000;<span class="comment">%in tons  12000 Btu/hr=1 ton</span>
+Out.PartialCapacity_piles=Out.TotalCapacity_HP.*(T.F1-T.F4)./T.F1;<span class="comment">%in tons</span>
+Out.PartialCapacity_Conv=Out.TotalCapacity_HP-Out.PartialCapacity_piles;<span class="comment">%in tons</span>
+
+<span class="comment">%Power in kW</span>
+<span class="keyword">if</span> ismember(<span class="string">'P1'</span>,T.Properties.VariableNames)==0
+T.P1=T.CT1PowerConsumption;
+<span class="keyword">else</span>
+    T.P1=T.P1;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ismember(<span class="string">'CT2PowerConsumption'</span>,T.Properties.VariableNames)==0 &amp;&amp; ismember(<span class="string">'P2'</span>,T.Properties.VariableNames)==0
+T.P2=ones(length(T.T6),1)*10;
+<span class="keyword">end</span>
+<span class="keyword">if</span> ismember(<span class="string">'P2'</span>,T.Properties.VariableNames)==0 &amp;&amp; ismember(<span class="string">'CT2PowerConsumption'</span>,T.Properties.VariableNames)==1
+   T.P2=T.CT2PowerConsumption;
+<span class="keyword">end</span>
+
+Out.TotalPower_HP_includingP1P2=(T.TotalPower+T.P1+T.P2)/1000;<span class="comment">%kW</span>
+Out.PartialPower_piles=(T.F1-T.F4)./T.F1.*Out.TotalPower_HP_includingP1P2;<span class="comment">%kW</span>
+Out.PartialPower_Conv=Out.TotalPower_HP_includingP1P2-Out.PartialPower_piles;<span class="comment">%kW</span>
+</pre><h2 id="6">COP Calculation</h2><pre class="codeinput">Out.COP_HP_includingP1P2= (Out.TotalCapacity_HP*3.51685)./Out.TotalPower_HP_includingP1P2;<span class="comment">%kW/kW convert capacity 1 ton = 3.51685 kW</span>
+<span class="comment">% Out.COP_geopiles= (Out.PartialCapacity_piles*3.51685)./(Out.PartialPower_piles);%kW/kW</span>
+EER_HPreading=T.TotalCapacity./T.TotalPower;
+Out.COP_HPreading=EER_HPreading/3.412;<span class="comment">%or from HP EER readings COP = EER/3.412</span>
+<span class="comment">% if T.T6 &lt; T.T7 %Cooling</span>
+Out.COP_TheoreticalGeoPiles= fitresult(T.T6);
+</pre><h2 id="7">Mean Values</h2><pre class="codeinput">Mean.HeatExchangeHP_kW=mean(Out.HE_HP);
+Mean.HeatExchangeGeopiles_kW=mean(Out.HE_geopile_sf);
+Mean.HeatExchangeConvLoop_kW=mean(Out.HE_conv);
+
+Mean.TotalHPPowerConsump_kW=mean(Out.TotalPower_HP_includingP1P2);<span class="comment">%in kW</span>
+Mean.GeoPilesPowerConsump_kW=mean(Out.PartialPower_piles);<span class="comment">%in kW</span>
+Mean.ConvLoopPowerConsump_kW=mean(Out.PartialPower_Conv);<span class="comment">%in kW</span>
+
+Mean.TotalCapacityHP_Tons=mean(Out.TotalCapacity_HP);<span class="comment">%in tons</span>
+Mean.GeoPilesCapacity_Tons=mean(Out.PartialCapacity_piles);<span class="comment">%in tons</span>
+Mean.ConvLoopCapacity_Tons=mean(Out.PartialCapacity_Conv);<span class="comment">%in tons</span>
+
+
+Mean.HeatPumpFlowrate_GPM=mean(T.F1);<span class="comment">%in GPM</span>
+Mean.GeopilesHXFlowrate_GPM=mean(T.F1)-mean(T.F4);
+Mean.ConvLoopFlowrate_GPM=mean(T.F4);<span class="comment">%in GPM</span>
+
+Mean.deltaTempPiles_degC= mean(Out.deltaT_geopiles);
+Mean.deltaTempHP_degC= mean((abs(T.T1-T.T2)));
+Mean.deltaTempConLoop_degC= mean((abs(T.T4-T.T5)));
+
+Mean.COP_HP=mean(Out.COP_HP_includingP1P2);<span class="comment">%</span>
+Mean.COP_Theoretical_Geopiles=mean(Out.COP_TheoreticalGeoPiles);
+</pre><h2 id="8">Plotting results</h2><p>You can add x-axis time limits if you want to avoid transition time at start and end of the test example add a line "xlim([T.Time(1)+ minutes(10) T.Time(end)-minutes(5)]" to each figure if necessary;</p><pre class="codeinput">figure21=figure;
+axes21 = axes(<span class="string">'Parent'</span>,figure21);
+axes21.FontSize=12;
+hold(axes21,<span class="string">'on'</span>);
+box(axes21,<span class="string">'on'</span>);
+yyaxis <span class="string">left</span>
+plot(T.Time,Out.COP_TheoreticalGeoPiles,<span class="string">'LineWidth'</span>,1.5)
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 12')
+ylabel (<span class="string">'COP_{Theoretical-GeoPiles} '</span>, <span class="string">'FontSize'</span>,12)
+yyaxis <span class="string">right</span>
+plot(T.Time,T.T6,<span class="string">'LineWidth'</span>,1.5)
+ylabel (<span class="string">'Temp out of Geopiles (\circC) '</span>, <span class="string">'FontSize'</span>,12)
+set(axes21,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'COP_{Theoretical GeoPiles}'</span>, <span class="string">'Temp out of the piles'</span>,<span class="string">'FontSize'</span>,10,<span class="string">'Location'</span>,<span class="string">'Best'</span>)
+title({<span class="string">'COP Theoretical of the GeoPiles Based on Heat Pump Manual'</span> ,<span class="string">'Assuming T6 to be the EWT '</span>}, <span class="string">'FontSize'</span>, 12')
+
+figure1=figure;
+axes1 = axes(<span class="string">'Parent'</span>,figure1);
+hold(axes1,<span class="string">'on'</span>);
+box(axes1,<span class="string">'on'</span>);
+Markers = {<span class="string">'*'</span>,<span class="string">'x'</span>,<span class="string">'o'</span>,<span class="string">'d'</span>,<span class="string">'v'</span>,<span class="string">'s'</span>,<span class="string">'+'</span>};
+col={<span class="string">'k'</span>,<span class="string">'r'</span>,[0.2 0.1 0.5],[0.1 0.5 0.8], [0.2 0.7 0.6],[ 0.8 0.7 0.3],[0.9 1 0]};
+<span class="comment">% plot(T.Time,(T.LWT-32)/1.8 -(T.EWT-32)/1.8 ,'LineWidth',1.5);</span>
+<span class="comment">% hold on</span>
+plot(T.Time,T.T2-T.T1 ,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span> ;
+plot(T.Time,T.T4-T.T5 ,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span> ;
+plot(T.Time,T.T6-T.T7 ,<span class="string">'LineWidth'</span>,1.5);
+<span class="comment">% xlim([T.Time(1) T.Time(end-10)])</span>
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>,14)
+ylabel (<span class="string">'Temperature (degC)'</span>, <span class="string">'FontSize'</span>,14)
+set(axes1,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'across HP'</span>,<span class="string">'across Existing Conv Loop'</span>,<span class="string">'across Geopiles'</span>,<span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>)
+title(<span class="string">'Temp Diff across HP, Existing Loop and Geopiles'</span>, <span class="string">'FontSize'</span>, 14')
+
+figure1a=figure;
+axes1a = axes(<span class="string">'Parent'</span>,figure1a);
+hold(axes1a,<span class="string">'on'</span>);
+box(axes1a,<span class="string">'on'</span>);
+plot(T.Time,T.T2 ,<span class="string">'LineWidth'</span>,1.5);
+hold <span class="string">on</span>;
+plot(T.Time,T.T1,<span class="string">'LineWidth'</span>,1.5);
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>,14)
+ylabel (<span class="string">'Temperature (degC)'</span>, <span class="string">'FontSize'</span>,14)
+set(axes1a,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'Temp into the HP'</span>,<span class="string">'Temp out of the HP'</span>,<span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>)
+title(<span class="string">'T1 and T2 at HP'</span>, <span class="string">'FontSize'</span>, 14')
+
+figure2=figure;
+axes2 = axes(<span class="string">'Parent'</span>,figure2);
+axes2.FontSize=14;
+hold(axes2,<span class="string">'on'</span>);
+box(axes2,<span class="string">'on'</span>);
+plot(T.Time,T.T6,<span class="string">'LineWidth'</span>,1.5)
+hold <span class="string">on</span>;
+plot(T.Time,T.T7,<span class="string">'LineWidth'</span>,1.5)
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>,14)
+ylabel (<span class="string">'Temperature (degC)'</span>, <span class="string">'FontSize'</span>,14)
+set(axes2,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'Temp out of the piles'</span>,<span class="string">'Temp into the piles'</span>,<span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>)
+title(<span class="string">'T7 and T6 Geopiles '</span>, <span class="string">'FontSize'</span>, 14')
+
+figure2a=figure;
+axes2a = axes(<span class="string">'Parent'</span>,figure2a);
+axes2a.FontSize=14;
+hold(axes2a,<span class="string">'on'</span>);
+box(axes2a,<span class="string">'on'</span>);
+plot(T.Time,T.T4,<span class="string">'LineWidth'</span>,1.5)
+hold <span class="string">on</span>;
+plot(T.Time,T.T5,<span class="string">'LineWidth'</span>,1.5)
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>,14)
+ylabel (<span class="string">'Temperature (degC)'</span>, <span class="string">'FontSize'</span>,14)
+set(axes2a,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'Temp out of the ConvLoop'</span>,<span class="string">'Temp into the ConvLoop'</span>,<span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>)
+title(<span class="string">'T4 and T5 Conventional Loop '</span>, <span class="string">'FontSize'</span>, 14)
+
+figure3=figure;
+axes3 = axes(<span class="string">'Parent'</span>,figure3);
+hold(axes3,<span class="string">'on'</span>);
+box(axes3,<span class="string">'on'</span>);
+plot(T.Time,Out.HE_HP,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,Out.HE_geopile_sf,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,Out.HE_conv,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>
+<span class="comment">%xlim([T.Time(1) T.Time(end-2)])</span>
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 14')
+ylabel(<span class="string">'Heat Exchange(kW)'</span>, <span class="string">'FontSize'</span>, 14');
+set(axes3,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'HE_{HP}'</span>,<span class="string">'HE_{Geopiles}'</span>,<span class="string">'HE_{ConvLoop}'</span>, <span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+title(<span class="string">'Heat Exchange[kW]'</span>, <span class="string">'FontSize'</span>, 14);
+<span class="comment">% 1 J/s= 3.412142 BTU/h</span>
+
+figure4=figure;
+axes4 = axes(<span class="string">'Parent'</span>,figure4);
+hold(axes4,<span class="string">'on'</span>);
+box(axes4,<span class="string">'on'</span>);
+plot(T.Time,Out.TotalCapacity_HP,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,Out.PartialCapacity_piles,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,Out.PartialCapacity_Conv,<span class="string">'LineWidth'</span>,1.5);
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 14')
+ylabel(<span class="string">'Capacity (Tons)'</span>, <span class="string">'FontSize'</span>, 14);
+set(axes4,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'TotalCapacity_{HP}'</span>,<span class="string">'PartialCapacity_{piles}'</span>,<span class="string">'PartialCapacity_{conv}'</span>, <span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+title(<span class="string">'Capacities [Tons]'</span>, <span class="string">'FontSize'</span>, 14);
+<span class="comment">% 1 J/s= 3.412142 BTU/h</span>
+
+figure5=figure;
+axes5 = axes(<span class="string">'Parent'</span>,figure5);
+hold(axes5,<span class="string">'on'</span>);
+box(axes5,<span class="string">'on'</span>);
+plot(T.Time,T.F1,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,T.F1-T.F4,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,T.F4,<span class="string">'LineWidth'</span>,1.5);
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 14')
+ylabel(<span class="string">'flowrate (gpm)'</span>, <span class="string">'FontSize'</span>, 14');
+set(axes5,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'Total HP Flow'</span>,<span class="string">'PartialFlow_{HX}'</span>,<span class="string">'PartialFlow_{conv}'</span>, <span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+title(<span class="string">'Flowrates [gpm]'</span>, <span class="string">'FontSize'</span>, 14');
+<span class="comment">% 1 J/s= 3.412142 BTU/h</span>
+
+figure6=figure;
+axes6 = axes(<span class="string">'Parent'</span>,figure6);
+hold(axes6,<span class="string">'on'</span>);
+box(axes6,<span class="string">'on'</span>);
+plot(T.Time,T.TP1,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;plot(T.Time,T.TP2,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;<span class="keyword">...</span>
+plot(T.Time,T.TP3,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;plot(T.Time,T.TP4,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;<span class="keyword">...</span>
+plot(T.Time,T.TP5,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>; plot(T.Time,T.TP6,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+<span class="comment">%plot(T.Time,T.TP7,'LineWidth',1.5); hold on;  %% if Sensor TP7 working uncomment plot</span>
+<span class="comment">%plot(T.Time,T.TP8,'k','LineWidth',1.5); %% if Sensor TP8 working uncomment plot</span>
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 14)
+ylabel(<span class="string">'Pile Outlet Temperature (C)'</span>, <span class="string">'FontSize'</span>, 14');
+set(axes6,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'TP1'</span>, <span class="string">'TP2'</span>, <span class="string">'TP3'</span>, <span class="string">'TP4'</span>, <span class="string">'TP5'</span>, <span class="string">'TP6'</span>, <span class="string">'TP7'</span>,<span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>)
+title(<span class="string">'Pile Outlet Temperature (C)'</span>, <span class="string">'FontSize'</span>, 14);
+
+figure7=figure;
+axes7 = axes(<span class="string">'Parent'</span>,figure7);
+axes7.FontSize=14;
+hold(axes7,<span class="string">'on'</span>);
+box(axes7,<span class="string">'on'</span>);
+plot(T.Time,Out.TotalPower_HP_includingP1P2,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,Out.PartialPower_piles,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,Out.PartialPower_Conv,<span class="string">'LineWidth'</span>,1.5);
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 14')
+ylabel(<span class="string">'PowerConsumption (kW)'</span>, <span class="string">'FontSize'</span>, 14');
+set(axes7,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'TotalPower_{HP}'</span>,<span class="string">'PartialPower_{piles}'</span>,<span class="string">'PartialPower_{conv}'</span>, <span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+title(<span class="string">'Total Power Consumption including P1 and P2[kW]'</span>, <span class="string">'FontSize'</span>, 14');
+<span class="comment">% 1 J/s= 3.412142 BTU/h</span>
+
+figure8a=figure;
+axes8a = axes(<span class="string">'Parent'</span>,figure8a);
+axes8a.FontSize=14;
+hold(axes8a,<span class="string">'on'</span>);
+box(axes8a,<span class="string">'on'</span>);
+<span class="comment">% plot(T.Time,EER_manuf/3.412,'LineWidth',1.5);hold on;</span>
+plot(T.Time,Out.COP_HP_includingP1P2,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,Out.COP_HPreading,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+<span class="comment">%  plot(T.Time(10:end),COP_TheoreticalGeoPiles(10:end),'LineWidth',1.5);</span>
+xlim([T.Time(1)+minutes(5) T.Time(end)])
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 14')
+ylabel(<span class="string">'COP'</span>, <span class="string">'FontSize'</span>, 14');
+set(axes8a,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'COP_{HP including P1 and P2}'</span>, <span class="string">'COP_{HP excluding P1 and P2}'</span>,<span class="string">'FontSize'</span>,14,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+title(<span class="string">'Heat Pump COP'</span>, <span class="string">'FontSize'</span>, 14);
+
+figure9=figure;
+axes9 = axes(<span class="string">'Parent'</span>,figure9);
+hold(axes9,<span class="string">'on'</span>);
+box(axes9,<span class="string">'on'</span>);
+plot(T.Time,T.F2,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,T.F3,<span class="string">'LineWidth'</span>,1.5);hold <span class="string">on</span>;
+plot(T.Time,T.F2+T.F3,<span class="string">'LineWidth'</span>,1.5);
+xlabel(<span class="string">'datetime'</span>,<span class="string">'FontSize'</span>, 14')
+ylabel(<span class="string">'flowrate (gpm)'</span>, <span class="string">'FontSize'</span>, 14');
+set(axes9,<span class="string">'GridColor'</span>,[0 0 0],<span class="string">'MinorGridColor'</span>,[0 0 0],<span class="string">'XColor'</span>,[0 0 0],<span class="string">'XMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'YColor'</span>,[0 0 0],<span class="keyword">...</span>
+    <span class="string">'YMinorTick'</span>,<span class="string">'on'</span>,<span class="string">'ZColor'</span>,[0 0 0],<span class="string">'TickLength'</span>,[0.02 0.025]);
+legend(<span class="string">'Piles Group2 Flow F2'</span>,<span class="string">'Piles Group1 Flow F3 '</span>,<span class="string">'Total Piles Flow (F2+F3)'</span>, <span class="string">'FontSize'</span>,12,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+title(<span class="string">'Flowrates [gpm]'</span>, <span class="string">'FontSize'</span>, 14');
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2021a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [outputArgs] = PostProcess_CleanData(inputArgs)
+
+%% PostProcess_CleanData function Summary
+% Author: Dr. Sylvie Antoun | Date: 2022/04/14 | Email: sylvieantoun@gmail.com |
+
+% [OUTPUTARGS] = POSTPROCESS_CLEANDATA(INPUTARGS) 
+% The function reads all the sensors Data and process it for
+% evaluating and plotting Heat Exchange, Capacity, Power consumption
+% and COP as a function of time for each EbyRush-System component: 
+% [Existing Conventional, Borehole Loop, Geo-Piles,Heat Pump]
+
+% This function is setup to assess both the COP of the Heat Pump (HP) and a Theoretical GeoPiles COP calculated by assuming the Heat Exchanger is absent. 
+% Theoretical COP is evaluated based on the Heat Pump Versatec VS Model 072 - Full Load Manual with T6 (water temperature coming out of the GeoPiles) 
+% used as the heat pump fluid temperature (EWT new) going directly into the Heat Pump. 
+% Note that the interpolated data for the COP were based on a Heat Pump Fluid Flow Rate of 18 gpm 
+
+% This function is also setup to calculate the mean value of outputs over the test time. 
+
+% Make sure you change your Folder to the directory where your 'Date_Test_CleanData.xlsx file is saved
+% 
+% This Code is well-commented to guide through the steps if you need to make any changes
+% Please refer to the "How To Document" and "Technical Report" for more guidance 
+
+
+%% Extra Notes of Unit Conversion factors 
+% * 1 W = 3.412142 BTU/h, 1W= 0.000284345 ton, 1 ton = 12,000 BTU/h, and 1 ton = 3.51685 kW
+% * F to degC =(F-32)/1.8, 
+% * GPM to lps for flowrate lps=gpm*3.7854/60   1 gpm = 6.309e-5 m3/s
+% * F1 is the flow rate of glycol flowing into the heat pump (gal/min), the same value as the heat pump WaterFlow variable.
+% * F2 and F3  are the flow rates of water going flowing into the geo-pile group1 and group2 loops respectively (gpm)
+% * Cpwg is the specific heat of water with 30% glycol (485 Btu/Ib.F =3915 J/kg-K), 
+% * Cpw is the specific heat of water (500 Btu/Ib.F =4187.00 J/kg-K), 
+% * LWT is the leaving water temperature of the heat pump (F) 
+% * EWT is the entering water temperature of the heat pump (F)
+% * T7 is the temperature of the water entering the geo-piles, 
+% * T6 is the temperature of the water leaving the entire geo-pile system, 
+% * TotalHPcapacity and HEHR are in Btu/hr and Power in Watts ->  1 W = 3.412142 BTU/h
+% * TotPowerHP is the total HP power consumption reading during operation (W)
+% * P1 is the power consumed by pump 1 in figure 7.1 (W). 
+% * P2 is the power consumed by pump 2 in figure 7.1 (W). 
+
+%% Importing Clean Data
+clear
+clc
+%Antifreeze Correction Factor from Heat Pump manual 
+AntifreezeCorrcooling=0.95;  AntifreezeCorrHeating =0.854;
+formatIn = 'yyyy-mm-dd HH:MM';% time vector format
+
+prompt = input('Make sure your current Folder is where you saved the Test Clean Data File. If true, Hit "Enter" to select the Clean file in .xlsx format')
+[files,path]=uigetfile('*.xls*');
+filePattern = fullfile(path, files); % Change to whatever pattern you need.
+theFiles = struct2table(dir(filePattern));
+ExcelFileNames=theFiles.name;
+opts=detectImportOptions(ExcelFileNames);
+%Read the data and variable names from file and save them in a Matlab time table
+T=readtimetable(ExcelFileNames,opts,'ReadVariableNames',true);
+VarName=opts.VariableNames; %variables Name Character
+
+%%interpolate or remove rows with missing NaN values
+T = fillmissing(T,'linear');
+T = rmmissing(T,'DataVariables',@isnumeric);
+
+if T.EWT < T.LWT %Cooling Season
+    AntifreezeCorr=AntifreezeCorrcooling;
+else 
+     AntifreezeCorr=AntifreezeCorrHeating;
+end 
+
+%% Curve Fitting COP Heat Pump Specs using Versatec-VS Model 072 Full Load at 18 GPM	
+%Values correspond to Flow = 18gpm
+CF=readtable('Heat Pump Curve Data.xlsx','Sheet','Model72 - Flow 18','VariableNamingRule','preserve'); %reading data from excel
+%F to degC =(F-32)/1.8, 
+for i=1:size(CF.EWT)
+  EWT_HPManual(i)=(CF.EWT(i)-32)/1.8;%convert to degC
+  COP_Cooling_HPManual(i)=CF.EER(i)/3.412;
+  COP_Heating_HPManual(i)=CF.COP(i);
+end
+
+if T.T6(10)<T.T7(10)
+    x= EWT_HPManual;
+    y= COP_Cooling_HPManual; 
+else 
+    x= EWT_HPManual;
+    y= COP_Heating_HPManual;
+end 
+[xData, yData] = prepareCurveData( x, y );
+% Set up fittype and options.
+ft = fittype( 'poly3' );
+% Fit model to data.
+[fitresult, gof] = fit( xData, yData, ft );
+% Plot fit with data.
+figure0=figure;
+axes0 = axes('Parent',figure0);
+axes0.FontSize=12;
+hold(axes0,'on');
+box(axes0,'on');
+plot( xData, yData,'ob','MarkerFaceColor','b','MarkerSize',4);
+hold on
+plot(fitresult,'predobs')
+xlim([-5 50])
+legend( axes0, 'Heat Pump Manual', 'CurveFit of COP(EWT)', 'Prediction Bounds','Location', 'Best' );
+set(axes0,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],...
+    'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+% Label axes
+xlabel( 'EWT (degC)','FontSize', 12 );
+ylabel( 'COP_{Cooling}', 'FontSize', 12 );
+title('Versatec VS Model 072 - Full Load')
+subtitle('COP Cooling - EAT 70 F (High Speed 2000 CFM) ', 'FontSize', 12')
+
+
+%%Fluid Properties as a function of Fluid Temperature
+Cp_w=1000*(28.07-0.2817*(T.T6+T.T7)/2+1.25*10^(-3)*((T.T6+T.T7)/2).^2 ...
+    -2.48*10^(-6)*((T.T6+T.T7)/2).^3+1.857*10^(-9)*((T.T6+T.T7)/2).^4);%(T in Kelvin, unit is J/kg.K)
+Cp_w=4187;
+Cp_wg=3915;
+rho_w=1001.1-0.0867*(T.T6+T.T7)/2-0.0035*((T.T6+T.T7)/2).^2;
+
+Twg=[-13	-7	-3	0	20	40	60	80	100];
+rho_wg=[1035	1034	1032	1031	1022	1010	997	983	969];
+[xData, yData] = prepareCurveData( Twg, rho_wg );
+% Set up fittype and options.
+ft1 = fittype( 'poly3' );
+% Fit model to data.
+[rho_wg, gof1] = fit( xData, yData, ft1 );
+
+a=-7.75E-09;
+b=1.03E-06;
+c=-5.71E-05;
+d=1.79E-03;
+
+Do=0.15;
+mu_w2 = a*((T.T6+T.T7)/2).^3 + b*((T.T6+T.T7)/2).^2 + c*((T.T6+T.T7)/2) + d;%[Pa s], [N s/m2]Do=0.1143;%m
+Ac=(pi*Do^2)/4;%m2
+vi= ((T.F2+T.F3)*6.309e-5/8)/Ac; %velocity per pile m/s
+Re=rho_w.*Do.*vi./mu_w2;
+
+%%Post-Calculations and Saving data in  'Out' structure 
+Out.Time=T.Time;
+Out.HEHR=T.HEHR/3.412142/1000;%Btu/hr to kW
+Out.HE_HP=abs((T.T2-T.T1).*T.F1.*6.309e-5*Cp_wg.*rho_wg((T.T1+T.T2)/2))/1000;% deltaT[K]*flow(gpm)*6.309e-5[m3/s/gpm]*cp[J/kg-K]*rho[kg/m3]/1000 (kW)
+%At Heat Exchanger Secondary Fluid in Pipe going into ground
+Out.HE_geopile_sf=abs((T.T6-T.T7).*(T.F3+T.F2).*6.309e-5.*Cp_w.*rho_w/1000); % deltaT[K]*flow(gpm)*6.309e-5[m3/s/gpm]*cp[J/kg-K]*rho[kg/m3]/1000 (kW)
+Out.HE_conv=abs((T.T4-T.T5).*T.F4*6.309e-5*Cp_wg.*rho_wg((T.T4+T.T5)/2))/1000;
+
+% At Heat Exchanger Primary fluid in Pipe going to Heat Pump
+%Out.HE_geopile_pf=Out.HE_HP-Out.HE_conv;
+Out.deltaT_geopiles=abs(T.T6-T.T7);
+%Out.deltaT_HeatExchanger=abs(Out.HE_geopile_sf*1000/(Cp_wg*rho_w.*(T.F1-T.F4)));
+
+% Capacities in Tons
+Out.TotalCapacity_HP=T.TotalCapacity/12000;%in tons  12000 Btu/hr=1 ton
+Out.PartialCapacity_piles=Out.TotalCapacity_HP.*(T.F1-T.F4)./T.F1;%in tons
+Out.PartialCapacity_Conv=Out.TotalCapacity_HP-Out.PartialCapacity_piles;%in tons
+
+%Power in kW
+if ismember('P1',T.Properties.VariableNames)==0
+T.P1=T.CT1PowerConsumption;
+else 
+    T.P1=T.P1;
+end
+
+if ismember('CT2PowerConsumption',T.Properties.VariableNames)==0 && ismember('P2',T.Properties.VariableNames)==0
+T.P2=ones(length(T.T6),1)*10;
+end
+if ismember('P2',T.Properties.VariableNames)==0 && ismember('CT2PowerConsumption',T.Properties.VariableNames)==1
+   T.P2=T.CT2PowerConsumption;
+end
+
+Out.TotalPower_HP_includingP1P2=(T.TotalPower+T.P1+T.P2)/1000;%kW
+Out.PartialPower_piles=(T.F1-T.F4)./T.F1.*Out.TotalPower_HP_includingP1P2;%kW
+Out.PartialPower_Conv=Out.TotalPower_HP_includingP1P2-Out.PartialPower_piles;%kW
+
+%% COP Calculation
+Out.COP_HP_includingP1P2= (Out.TotalCapacity_HP*3.51685)./Out.TotalPower_HP_includingP1P2;%kW/kW convert capacity 1 ton = 3.51685 kW
+% Out.COP_geopiles= (Out.PartialCapacity_piles*3.51685)./(Out.PartialPower_piles);%kW/kW
+EER_HPreading=T.TotalCapacity./T.TotalPower;
+Out.COP_HPreading=EER_HPreading/3.412;%or from HP EER readings COP = EER/3.412
+% if T.T6 < T.T7 %Cooling 
+Out.COP_TheoreticalGeoPiles= fitresult(T.T6);
+
+%% Mean Values
+
+Mean.HeatExchangeHP_kW=mean(Out.HE_HP);
+Mean.HeatExchangeGeopiles_kW=mean(Out.HE_geopile_sf);
+Mean.HeatExchangeConvLoop_kW=mean(Out.HE_conv);
+
+Mean.TotalHPPowerConsump_kW=mean(Out.TotalPower_HP_includingP1P2);%in kW
+Mean.GeoPilesPowerConsump_kW=mean(Out.PartialPower_piles);%in kW
+Mean.ConvLoopPowerConsump_kW=mean(Out.PartialPower_Conv);%in kW
+
+Mean.TotalCapacityHP_Tons=mean(Out.TotalCapacity_HP);%in tons
+Mean.GeoPilesCapacity_Tons=mean(Out.PartialCapacity_piles);%in tons
+Mean.ConvLoopCapacity_Tons=mean(Out.PartialCapacity_Conv);%in tons
+
+
+Mean.HeatPumpFlowrate_GPM=mean(T.F1);%in GPM
+Mean.GeopilesHXFlowrate_GPM=mean(T.F1)-mean(T.F4);
+Mean.ConvLoopFlowrate_GPM=mean(T.F4);%in GPM
+
+Mean.deltaTempPiles_degC= mean(Out.deltaT_geopiles);
+Mean.deltaTempHP_degC= mean((abs(T.T1-T.T2)));
+Mean.deltaTempConLoop_degC= mean((abs(T.T4-T.T5)));
+
+Mean.COP_HP=mean(Out.COP_HP_includingP1P2);%
+Mean.COP_Theoretical_Geopiles=mean(Out.COP_TheoreticalGeoPiles);
+
+%% Plotting results 
+% You can add x-axis time limits if you want to avoid transition time at start and end of the test
+% example add a line "xlim([T.Time(1)+ minutes(10) T.Time(end)-minutes(5)]" to each figure if necessary; 
+
+figure21=figure;
+axes21 = axes('Parent',figure21);
+axes21.FontSize=12;
+hold(axes21,'on');
+box(axes21,'on');
+yyaxis left
+plot(T.Time,Out.COP_TheoreticalGeoPiles,'LineWidth',1.5)
+xlabel('datetime','FontSize', 12')
+ylabel ('COP_{Theoretical-GeoPiles} ', 'FontSize',12)
+yyaxis right
+plot(T.Time,T.T6,'LineWidth',1.5)
+ylabel ('Temp out of Geopiles (\circC) ', 'FontSize',12)
+set(axes21,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],...
+    'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('COP_{Theoretical GeoPiles}', 'Temp out of the piles','FontSize',10,'Location','Best')
+title({'COP Theoretical of the GeoPiles Based on Heat Pump Manual' ,'Assuming T6 to be the EWT '}, 'FontSize', 12')
+
+figure1=figure;
+axes1 = axes('Parent',figure1);
+hold(axes1,'on');
+box(axes1,'on');
+Markers = {'*','x','o','d','v','s','+'};
+col={'k','r',[0.2 0.1 0.5],[0.1 0.5 0.8], [0.2 0.7 0.6],[ 0.8 0.7 0.3],[0.9 1 0]};
+% plot(T.Time,(T.LWT-32)/1.8 -(T.EWT-32)/1.8 ,'LineWidth',1.5);
+% hold on
+plot(T.Time,T.T2-T.T1 ,'LineWidth',1.5);hold on ;
+plot(T.Time,T.T4-T.T5 ,'LineWidth',1.5);hold on ;
+plot(T.Time,T.T6-T.T7 ,'LineWidth',1.5);
+% xlim([T.Time(1) T.Time(end-10)])
+xlabel('datetime','FontSize',14)
+ylabel ('Temperature (degC)', 'FontSize',14)
+set(axes1,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],...
+    'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('across HP','across Existing Conv Loop','across Geopiles','FontSize',14,'Location','Best')
+title('Temp Diff across HP, Existing Loop and Geopiles', 'FontSize', 14')
+
+figure1a=figure;
+axes1a = axes('Parent',figure1a);
+hold(axes1a,'on');
+box(axes1a,'on');
+plot(T.Time,T.T2 ,'LineWidth',1.5);
+hold on;
+plot(T.Time,T.T1,'LineWidth',1.5);
+xlabel('datetime','FontSize',14)
+ylabel ('Temperature (degC)', 'FontSize',14)
+set(axes1a,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],...
+    'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('Temp into the HP','Temp out of the HP','FontSize',14,'Location','Best')
+title('T1 and T2 at HP', 'FontSize', 14')
+
+figure2=figure;
+axes2 = axes('Parent',figure2);
+axes2.FontSize=14;
+hold(axes2,'on');
+box(axes2,'on');
+plot(T.Time,T.T6,'LineWidth',1.5)
+hold on;
+plot(T.Time,T.T7,'LineWidth',1.5)
+xlabel('datetime','FontSize',14)
+ylabel ('Temperature (degC)', 'FontSize',14)
+set(axes2,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],...
+    'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('Temp out of the piles','Temp into the piles','FontSize',14,'Location','Best')
+title('T7 and T6 Geopiles ', 'FontSize', 14')
+
+figure2a=figure;
+axes2a = axes('Parent',figure2a);
+axes2a.FontSize=14;
+hold(axes2a,'on');
+box(axes2a,'on');
+plot(T.Time,T.T4,'LineWidth',1.5)
+hold on;
+plot(T.Time,T.T5,'LineWidth',1.5)
+xlabel('datetime','FontSize',14)
+ylabel ('Temperature (degC)', 'FontSize',14)
+set(axes2a,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],...
+    'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('Temp out of the ConvLoop','Temp into the ConvLoop','FontSize',14,'Location','Best')
+title('T4 and T5 Conventional Loop ', 'FontSize', 14)
+
+figure3=figure;
+axes3 = axes('Parent',figure3);
+hold(axes3,'on');
+box(axes3,'on');
+plot(T.Time,Out.HE_HP,'LineWidth',1.5);hold on;
+plot(T.Time,Out.HE_geopile_sf,'LineWidth',1.5);hold on;
+plot(T.Time,Out.HE_conv,'LineWidth',1.5);hold on 
+%xlim([T.Time(1) T.Time(end-2)])
+xlabel('datetime','FontSize', 14')
+ylabel('Heat Exchange(kW)', 'FontSize', 14');
+set(axes3,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('HE_{HP}','HE_{Geopiles}','HE_{ConvLoop}', 'FontSize',14,'Location','Best');
+title('Heat Exchange[kW]', 'FontSize', 14);
+% 1 J/s= 3.412142 BTU/h
+
+figure4=figure;
+axes4 = axes('Parent',figure4);
+hold(axes4,'on');
+box(axes4,'on');
+plot(T.Time,Out.TotalCapacity_HP,'LineWidth',1.5);hold on;
+plot(T.Time,Out.PartialCapacity_piles,'LineWidth',1.5);hold on;
+plot(T.Time,Out.PartialCapacity_Conv,'LineWidth',1.5);
+xlabel('datetime','FontSize', 14')
+ylabel('Capacity (Tons)', 'FontSize', 14);
+set(axes4,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('TotalCapacity_{HP}','PartialCapacity_{piles}','PartialCapacity_{conv}', 'FontSize',14,'Location','Best');
+title('Capacities [Tons]', 'FontSize', 14);
+% 1 J/s= 3.412142 BTU/h
+
+figure5=figure;
+axes5 = axes('Parent',figure5);
+hold(axes5,'on');
+box(axes5,'on');
+plot(T.Time,T.F1,'LineWidth',1.5);hold on;
+plot(T.Time,T.F1-T.F4,'LineWidth',1.5);hold on;
+plot(T.Time,T.F4,'LineWidth',1.5);
+xlabel('datetime','FontSize', 14')
+ylabel('flowrate (gpm)', 'FontSize', 14');
+set(axes5,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('Total HP Flow','PartialFlow_{HX}','PartialFlow_{conv}', 'FontSize',14,'Location','Best');
+title('Flowrates [gpm]', 'FontSize', 14');
+% 1 J/s= 3.412142 BTU/h
+
+figure6=figure;
+axes6 = axes('Parent',figure6);
+hold(axes6,'on');
+box(axes6,'on');
+plot(T.Time,T.TP1,'LineWidth',1.5);hold on;plot(T.Time,T.TP2,'LineWidth',1.5);hold on;...
+plot(T.Time,T.TP3,'LineWidth',1.5);hold on;plot(T.Time,T.TP4,'LineWidth',1.5);hold on;...
+plot(T.Time,T.TP5,'LineWidth',1.5);hold on; plot(T.Time,T.TP6,'LineWidth',1.5);hold on;
+%plot(T.Time,T.TP7,'LineWidth',1.5); hold on;  %% if Sensor TP7 working uncomment plot
+%plot(T.Time,T.TP8,'k','LineWidth',1.5); %% if Sensor TP8 working uncomment plot
+xlabel('datetime','FontSize', 14)
+ylabel('Pile Outlet Temperature (C)', 'FontSize', 14');
+set(axes6,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('TP1', 'TP2', 'TP3', 'TP4', 'TP5', 'TP6', 'TP7','FontSize',14,'Location','Best')
+title('Pile Outlet Temperature (C)', 'FontSize', 14);
+
+figure7=figure;
+axes7 = axes('Parent',figure7);
+axes7.FontSize=14;
+hold(axes7,'on');
+box(axes7,'on');
+plot(T.Time,Out.TotalPower_HP_includingP1P2,'LineWidth',1.5);hold on;
+plot(T.Time,Out.PartialPower_piles,'LineWidth',1.5);hold on;
+plot(T.Time,Out.PartialPower_Conv,'LineWidth',1.5);
+xlabel('datetime','FontSize', 14')
+ylabel('PowerConsumption (kW)', 'FontSize', 14');
+set(axes7,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('TotalPower_{HP}','PartialPower_{piles}','PartialPower_{conv}', 'FontSize',14,'Location','Best');
+title('Total Power Consumption including P1 and P2[kW]', 'FontSize', 14');
+% 1 J/s= 3.412142 BTU/h
+
+figure8a=figure;
+axes8a = axes('Parent',figure8a);
+axes8a.FontSize=14;
+hold(axes8a,'on');
+box(axes8a,'on');
+% plot(T.Time,EER_manuf/3.412,'LineWidth',1.5);hold on;
+plot(T.Time,Out.COP_HP_includingP1P2,'LineWidth',1.5);hold on;
+plot(T.Time,Out.COP_HPreading,'LineWidth',1.5);hold on;
+%  plot(T.Time(10:end),COP_TheoreticalGeoPiles(10:end),'LineWidth',1.5);
+xlim([T.Time(1)+minutes(5) T.Time(end)])
+xlabel('datetime','FontSize', 14')
+ylabel('COP', 'FontSize', 14');
+set(axes8a,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('COP_{HP including P1 and P2}', 'COP_{HP excluding P1 and P2}','FontSize',14,'Location','Best');
+title('Heat Pump COP', 'FontSize', 14);
+
+figure9=figure;
+axes9 = axes('Parent',figure9);
+hold(axes9,'on');
+box(axes9,'on');
+plot(T.Time,T.F2,'LineWidth',1.5);hold on;
+plot(T.Time,T.F3,'LineWidth',1.5);hold on;
+plot(T.Time,T.F2+T.F3,'LineWidth',1.5);
+xlabel('datetime','FontSize', 14')
+ylabel('flowrate (gpm)', 'FontSize', 14');
+set(axes9,'GridColor',[0 0 0],'MinorGridColor',[0 0 0],'XColor',[0 0 0],'XMinorTick','on','YColor',[0 0 0],...
+    'YMinorTick','on','ZColor',[0 0 0],'TickLength',[0.02 0.025]);
+legend('Piles Group2 Flow F2','Piles Group1 Flow F3 ','Total Piles Flow (F2+F3)', 'FontSize',12,'Location','Best');
+title('Flowrates [gpm]', 'FontSize', 14');
+
+end
+
+##### SOURCE END #####
+--></body></html>
