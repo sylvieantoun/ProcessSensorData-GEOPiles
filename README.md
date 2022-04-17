@@ -3,7 +3,8 @@ Summary Description: Cleaning and Processing messy/missing sensor sata of ground
 
 **function [outputArgs] = PreProcess_ExcelFiles(InputArgs)**
 
-Author/Original Developer: Sylvie Antoun   Date: 2022/04/14  
+Author: Sylvie Antoun   
+Date: 2022/04/14  
 Email: sylvieantoun@gmail.com
 
 PreProcess_ExcelFiles function lets you interactively handle messy and missing data values such as NaN or <missing>. 
@@ -16,7 +17,8 @@ Make sure you change your Folder to the directory where your .xls* files exit. P
 
 
 **function [outputArgs] = PostProcess_CleanData(inputArgs)**
-Author/Original Developer: Sylvie Antoun   Date: 2022/04/14  
+Author: Sylvie Antoun   
+Date: 2022/04/14  
 Email: sylvieantoun@gmail.com
 
 1. PostProcess_CleanData function reads all the sensors Data and process it for evaluating and plotting Heat Exchange, Capacity, Power consumption and COP as a function of time for each EbyRush-System component:  [Existing Conventional, Borehole Loop, Geo-Piles,Heat Pump]
