@@ -1,4 +1,9 @@
 function [outputArgs] = PreProcess_ExcelFiles(INPUTARGS)
+
+% Author: Dr.Sylvie Antoun
+% Date: 2022/04/14  
+% Email: sylvieantoun@gmail.com
+
 % PREPROCESS_EXCELFILES function lets you interactively handle messy and missing data values such as NaN or <missing>. 
 % The function main objectives is to: 
 % $ Retime and Synchronize Time Dependent Sensor Variables.
@@ -11,9 +16,7 @@ function [outputArgs] = PreProcess_ExcelFiles(INPUTARGS)
 % T1, T2, T3, T4, T5, T6, T7, TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, F1, F2, F3, F4...
 % EER (cooling) or COP (heating), EWT, LWT, HEHR, P1, P2, TotalCapacity, TotalPower, ZoneTempStat
 % Make sure you change your Folder to the directory where your .xls* files exit
-
 % Please refer to the "How To Document" for more guidance 
-%% Author/Original Developer: Dr.Sylvie Antoun   Date: 2022/04/14  email: sylvieantoun@gmail.com
 
 tic
 clc
