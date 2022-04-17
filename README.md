@@ -32,13 +32,13 @@ Make sure you change your Folder to the directory where your 'Date_Test_CleanDat
 
 
 **Extra Notes of Unit Conversion factors**
-1 W = 3.412142 BTU/h, 1W= 0.000284345 ton, 1 ton = 12,000 BTU/h, and 1 ton = 3.51685 kW
-F to degC =(F-32)/1.8, 
-GPM to lps for flowrate lps=gpm*3.7854/60   1 gpm = 6.309e-5 m3/s
-F1 is the flow rate of glycol flowing into the heat pump (gal/min), the same value as the heat pump WaterFlow variable. 
-F2 and F3  are the flow rates of water going flowing into the geo-pile group1 and group2 loops respectively (gpm)
-Cpwg is the specific heat of water with 30 glycol (485 Btu/Ib.F =3915 J/kg-K), 
-Cpw is the specific heat of water (500 Btu/Ib.F =4187.00 J/kg-K), 
+* 1 W = 3.412142 BTU/h, 1W= 0.000284345 ton, 1 ton = 12,000 BTU/h, and 1 ton = 3.51685 kW
+* F to degC =(F-32)/1.8, 
+* GPM to lps for flowrate lps=gpm*3.7854/60   1 gpm = 6.309e-5 m3/s
+* F1 is the flow rate of glycol flowing into the heat pump (gal/min), the same value as the heat pump WaterFlow variable. 
+* F2 and F3  are the flow rates of water going flowing into the geo-pile group1 and group2 loops respectively (gpm)
+* Cpwg is the specific heat of water with 30 glycol (485 Btu/Ib.F =3915 J/kg-K), 
+* Cpw is the specific heat of water (500 Btu/Ib.F =4187.00 J/kg-K), 
 LWT is the leaving water temperature of the heat pump (F) 
 EWT is the entering water temperature of the heat pump (F)
 T7 is the temperature of the water entering the geo-piles, 
