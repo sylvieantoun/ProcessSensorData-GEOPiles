@@ -1,9 +1,13 @@
 function [outputArgs] = PostProcess_CleanData(inputArgs)
 
 %% PostProcess_CleanData function Summary
-% Author: Dr. Sylvie Antoun 
-% Date: 2022/04/14 
-% Email: sylvieantoun@gmail.com 
+% Author: Sylvie Antoun
+% Date: 2022/04/14
+% Version: 2.0
+% Title: GEOPiles Eby-Rush Source Code
+% Email: sylvieantoun@gmail.com
+% Availability: https://github.com/sylvieantoun/ProcessSensorData-GEOPiles
+
 
 % [OUTPUTARGS] = POSTPROCESS_CLEANDATA(INPUTARGS) 
 % The function reads all the sensors Data and process it for
