@@ -1,8 +1,12 @@
 function [outputArgs] = PreProcess_ExcelFiles(INPUTARGS)
 
-% Author: Dr.Sylvie Antoun
-% Date: 2022/04/14  
+% Author: Sylvie Antoun
+% Date: 2022/04/14
+% Version: 2.0
+% Title: GEOPiles Eby-Rush Source Code
 % Email: sylvieantoun@gmail.com
+% Availability: https://github.com/sylvieantoun/ProcessSensorData-GEOPiles
+
 
 % PREPROCESS_EXCELFILES function lets you interactively handle messy and missing data values such as NaN or <missing>. 
 % The function main objectives is to: 
