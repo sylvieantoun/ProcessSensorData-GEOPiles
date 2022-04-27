@@ -5,7 +5,8 @@ Process Sensor Data of GEOPiles Eby-Rush Project
 
 # License
 Copyright (c) 2022, Sylvie Antoun
-All rights reserved.
+
+ All rights reserved.
  
 This source code is licensed under the GPL-3.0 GPL License (aka GNU General Public License v3.0) found in the [LICENSE](https://github.com/sylvieantoun/ProcessSensorData-GEOPiles/blob/main/LICENSE.txt) file in the root directory of this source tree.
 
